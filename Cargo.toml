@@ -2,13 +2,14 @@
 name = "gnucobol-rs-link"
 version = "0.1.0"
 edition = "2021"
-description = "gnucobol-rs inter-program linkage: CALL/CANCEL, BY REFERENCE/CONTENT/VALUE parameter passing, and dynamic program loading."
+description = "gnucobol-rs inter-program linkage: BY REFERENCE / BY CONTENT / BY VALUE parameter-passing byte semantics over the oracle-proven gnucobol-rs core (the CALL.LAYOUT court). Dynamic dlopen loading is a deferred, separately-gated feature."
 authors = ["infinityabundance"]
 license = "LGPL-3.0-or-later"
 repository = "https://github.com/infinityabundance/gnucobol-rs-link"
 readme = "README.md"
-publish = false  # empty scaffold; flip to publishable once the implementation lands
+keywords = ["cobol", "gnucobol", "call", "linkage", "ffi"]
+categories = ["encoding"]
+publish = false  # path-dep on the core for now; flip to a `gnucobol-rs = "0.7"` version dep + publish once the core is on crates.io
 
 [dependencies]
-# A faithful-port satellite of the gnucobol-rs ecosystem. Depends on the gnucobol-rs core primitives.
-# Activate when the implementation lands: gnucobol-rs = "0.7"
+gnucobol-rs = { path = "../gnucobol-rs/crates/gnucobol-rs" }

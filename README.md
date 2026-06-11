@@ -1,21 +1,28 @@
 # gnucobol-rs-link
 
-gnucobol-rs inter-program linkage: CALL/CANCEL, BY REFERENCE/CONTENT/VALUE parameter passing, and dynamic program loading.
+Inter-program linkage parameter-passing **byte semantics** (`CALL ... USING BY REFERENCE / BY CONTENT /
+BY VALUE`) over the **oracle-proven** [`gnucobol-rs`](https://github.com/infinityabundance/gnucobol-rs) core.
 
-A faithful-port satellite of the **gnucobol-rs** ecosystem -- an oracle-first Rust compatibility court for
-GnuCOBOL 3.2 (byte-exact vs the real cobc/libcob, fail-closed, receipt-backed). This crate ports: CALL/linkage + dynamic loading (libcob/call.c).
+cobc's behavior was mapped by the `GNURUST.CALL.LAYOUT.ATLAS.1` court; this crate reproduces it as a safe
+Rust model:
 
-## Profile
-Intended: **std (dynamic ABI); unsafe only at the dlopen/dlsym boundary**.
+- **BY REFERENCE** — the callee shares the caller's storage (overlay view); a callee write is visible to the
+  caller, and an item larger than the field reads/writes into adjacent storage, exactly as cobc does.
+- **BY CONTENT** / **BY VALUE** — the callee gets a private sized copy; mutating it never touches the caller.
 
-## Ecosystem
-- gnucobol-rs (core) = oracle-proven data-division primitives (PIC, layout, COMP-3, MOVE, VALUE, arithmetic).
-- gnucobol-rs-exec / -io / -intrinsics / -link / -tui = the modular runtime satellites (this is one).
-- gnucobol-rs-* MAY depend on the gnucobol-rs core; the core MUST NOT depend on a satellite.
-- kobold-* (Apache-2.0, separate repos) = the forensic-intelligence layer ABOVE the ecosystem.
+```rust
+use gnucobol_rs_link::{bind_reference, bind_content, bind_numeric_reference};
+
+let mut caller = b"ABCXY".to_vec();
+{ let v = bind_reference(&mut caller, 0, 5); v[0] = b'Z'; } // BY REFERENCE write-through
+assert_eq!(&caller, b"ZBCXY");
+
+// a narrower numeric LINKAGE item overlays the leading bytes, decoded via the proven core:
+assert_eq!(bind_numeric_reference(b"1234", 0, "9(2)").unwrap().unscaled_i128(), Some(12));
+```
+
+Dynamic program loading (`dlopen`/`dlsym` for `CALL` by runtime name) is a deferred, separately-gated feature —
+the only place audited `unsafe` will appear.
 
 ## License
-**LGPL-3.0-or-later** (faithful derivative of GnuCOBOL/libcob; FSF copyright retained). See COPYING.LESSER + COPYING.
-
-## Status
-Scaffold only -- repo initialized, no implementation yet. Implementation follows the split/planning pass.
+LGPL-3.0-or-later — a faithful derivative of GnuCOBOL/libcob (FSF copyright retained). See COPYING.LESSER (+ COPYING).
