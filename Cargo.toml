@@ -9,7 +9,6 @@ repository = "https://github.com/infinityabundance/gnucobol-rs-link"
 readme = "README.md"
 keywords = ["cobol", "gnucobol", "call", "linkage", "ffi"]
 categories = ["encoding"]
-publish = false  # path-dep on the core for now; flip to a `gnucobol-rs = "0.7"` version dep + publish once the core is on crates.io
 
 [dependencies]
-gnucobol-rs = { path = "../gnucobol-rs/crates/gnucobol-rs" }
+gnucobol-rs = "0.7"
